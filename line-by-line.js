@@ -73,12 +73,12 @@ LineByLineReader.prototype._initStream = function () {
   		self._readStream.pause();
   		self._lines = self._lines.concat(data.split(/(?:\n|\r\n|\r)/g));
 
-		self._lines[0] = self._lineFragment + self._lines[0];
-		self._lineFragment = self._lines.pop() || '';
+  		self._lines[0] = self._lineFragment + self._lines[0];
+  		self._lineFragment = self._lines.pop() || '';
 
-		setImmediate(function () {
-			self._nextLine();
-		});
+  		setImmediate(function () {
+  			self._nextLine();
+  		});
 	});
 
 	readStream.on('end', function () {
