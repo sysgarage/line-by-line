@@ -11,6 +11,8 @@
 var path = require('path');
 var fs = require('fs');
 var events = require("events");
+var iconvlite = require('iconv-lite');
+var AutoDetectDecoderStream = require('autodetect-decoder-stream');
 
 // let's make sure we have a setImmediate function (node.js <0.10)
 if (typeof global.setImmediate == 'undefined') { setImmediate = process.nextTick;}
@@ -54,7 +56,7 @@ LineByLineReader.prototype = Object.create(events.EventEmitter.prototype, {
 
 LineByLineReader.prototype._initStream = function () {
 	var self = this,
-		readStream = fs.createReadStream(this._filepath, this._streamOptions);
+		readStream = fs.createReadStream(this._filepath);
 
 	readStream.on('error', function (err) {
 		self.emit('error', err);
@@ -64,9 +66,12 @@ LineByLineReader.prototype._initStream = function () {
 		self.emit('open');
 	});
 
-	readStream.on('data', function (data) {
-		self._readStream.pause();
-		self._lines = self._lines.concat(data.split(/(?:\n|\r\n|\r)/g));
+	readStream
+    .pipe(new AutoDetectDecoderStream())
+    .pipe(iconvlite.encodeStream('utf8'))
+    .on('data', function (data) {
+  		self._readStream.pause();
+  		self._lines = self._lines.concat(data.split(/(?:\n|\r\n|\r)/g));
 
 		self._lines[0] = self._lineFragment + self._lines[0];
 		self._lineFragment = self._lines.pop() || '';

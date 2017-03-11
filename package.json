@@ -12,6 +12,8 @@
 	},
 	"main": "line-by-line.js",
 	"dependencies": {
+    "autodetect-decoder-stream": "^1.0.0",
+    "iconv-lite": "^0.4.15"
 	},
 	"devDependencies": {
 		"jshint": "2.5.x"
