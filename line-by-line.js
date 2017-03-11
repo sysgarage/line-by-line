@@ -23,7 +23,7 @@ var LineByLineReader = function (filepath, options) {
 	this._filepath = path.normalize(filepath);
 	this._encoding = options && options.encoding || 'utf8';
 	this._skipEmptyLines = options && options.skipEmptyLines || false;
-	this._streamOptions = { encoding: this._encoding };
+	this._streamOptions = {};
 
 	if (options && options.start) {
 		this._streamOptions.start = options.start;
@@ -56,7 +56,7 @@ LineByLineReader.prototype = Object.create(events.EventEmitter.prototype, {
 
 LineByLineReader.prototype._initStream = function () {
 	var self = this,
-		readStream = fs.createReadStream(this._filepath);
+		readStream = fs.createReadStream(this._filepath, this._streamOptions);
 
 	readStream.on('error', function (err) {
 		self.emit('error', err);
@@ -70,6 +70,7 @@ LineByLineReader.prototype._initStream = function () {
     .pipe(new AutoDetectDecoderStream())
     .pipe(iconvlite.encodeStream('utf8'))
     .on('data', function (data) {
+      data = data.toString('utf8');
   		self._readStream.pause();
   		self._lines = self._lines.concat(data.split(/(?:\n|\r\n|\r)/g));
 
