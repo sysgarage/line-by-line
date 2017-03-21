@@ -56,7 +56,9 @@ LineByLineReader.prototype = Object.create(events.EventEmitter.prototype, {
 
 LineByLineReader.prototype._initStream = function () {
 	var self = this,
-		readStream = fs.createReadStream(this._filepath, this._streamOptions);
+		readStream = fs.createReadStream(this._filepath, this._streamOptions)
+			.pipe(new AutoDetectDecoderStream())
+			.pipe(iconvlite.encodeStream('utf8'));
 
 	readStream.on('error', function (err) {
 		self.emit('error', err);
@@ -67,8 +69,6 @@ LineByLineReader.prototype._initStream = function () {
 	});
 
 	readStream
-    .pipe(new AutoDetectDecoderStream())
-    .pipe(iconvlite.encodeStream('utf8'))
     .on('data', function (data) {
       data = data.toString('utf8');
   		self._readStream.pause();
